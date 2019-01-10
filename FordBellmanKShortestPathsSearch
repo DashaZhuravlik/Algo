@@ -1,0 +1,91 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class FordBellmanKShortestPathsSearch {
+
+    private static Graph graph;
+    private static long[] distances;
+    private static long[] distancesNext;
+    private static int[] parents;
+
+    static class Edge {
+        private int from;
+        private int to;
+        private long weight;
+
+        public Edge(int from, int to, long weight) {
+            this.from = from;
+            this.to = to;
+            this.weight = weight;
+        }
+
+        public int getFrom() {
+            return from;
+        }
+
+        public int getTo() {
+            return to;
+        }
+
+        public long getWeight() {
+            return weight;
+        }
+    }
+
+    static class Graph {
+        private int size;
+        private List<Edge> edges;
+
+        public Graph(int size) {
+            this.size = size;
+            edges = new ArrayList<>();
+        }
+
+        public void addEdge(int from, int to, long weight) {
+            edges.add(new Edge(from, to, weight));
+        }
+
+        public List<Edge> getEdges() {
+            return edges;
+        }
+
+        public int size() {
+            return size;
+        }
+    }
+
+    public FordBellmanKShortestPathsSearch(Graph graph) {
+        distances = new long[graph.size()];
+        distancesNext = new long[graph.size()];
+        parents = new int[graph.size()];
+        for (int count = 0; count < graph.size(); ++count) {
+            this.graph = graph;
+            distances[count] = Long.MAX_VALUE;
+            distancesNext[count] = Long.MAX_VALUE;
+            parents[count] = Integer.MIN_VALUE;
+        }
+    }
+
+    public void execute(int startingVertex, int quantity) {
+        distances[startingVertex] = 0;
+        for (int count = 0; count < quantity; ++count) {
+            for (Edge edge : graph.getEdges()) {
+                if (distances[edge.getFrom()] == Long.MAX_VALUE) {
+                    continue;
+                }
+                if (distances[edge.getFrom()] + edge.getWeight() < distancesNext[edge.getTo()]) {
+                    distancesNext[edge.getTo()] = distances[edge.getFrom()] + edge.getWeight();
+                    parents[edge.getTo()] = edge.getFrom();
+                }
+            }
+            for (int newCount = 0; newCount < graph.size(); ++newCount) {
+                distances[newCount] = distancesNext[newCount];
+                distancesNext[newCount] = Long.MAX_VALUE;
+            }
+        }
+    }
+
+    public long getDistance(int node) {
+        return distances[node];
+    }
+}
