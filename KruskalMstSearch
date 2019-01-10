@@ -1,0 +1,125 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class KruskalMstSearch {
+
+    static class Edge implements Comparable<Edge> {
+        private int from;
+        private int to;
+        private int weight;
+
+        public Edge(int from, int to, int weight) {
+            this.from = from;
+            this.to = to;
+            this.weight = weight;
+        }
+
+        public int getFrom() {
+            return from;
+        }
+
+        public int getTo() {
+            return to;
+        }
+
+        public long getWeight() {
+            return weight;
+        }
+
+        @Override
+        public int compareTo(Edge that) {
+            return this.weight - that.weight;
+        }
+    }
+
+    static class Graph {
+        private int size;
+        private List<Edge> edges;
+
+        public Graph(int size) {
+            this.size = size;
+            edges = new ArrayList<>();
+        }
+
+        public void addEdge(int from, int to, int weight) {
+            edges.add(new Edge(from, to, weight));
+        }
+
+        public List<Edge> getEdges() {
+            return edges;
+        }
+
+        public int size() {
+            return size;
+        }
+    }
+
+    static class DisjointSetUnion {
+
+        private int[] parents;
+        private int[] rank;
+
+        public DisjointSetUnion(int size) {
+            parents = new int[size];
+            rank = new int[size];
+            for (int indexOfVertex = 0; indexOfVertex < size; ++indexOfVertex) {
+                parents[indexOfVertex] = indexOfVertex;
+            }
+        }
+
+        private int root(int vertex) {
+            int root = vertex;
+            while (parents[root] != root) {
+                root = parents[root];
+            }
+            int vertexNow = vertex;
+            while (parents[vertexNow] != vertexNow) {
+                int freeVariable = parents[vertexNow];
+                parents[vertexNow] = root;
+                vertexNow = freeVariable;
+            }
+            return root;
+        }
+
+        public void unite(int firstVertex, int secondVertex) {
+            firstVertex = root(firstVertex);
+            secondVertex = root(secondVertex);
+            if (firstVertex == secondVertex) {
+                return;
+            }
+            if (rank[firstVertex] == rank[secondVertex]) {
+                ++rank[secondVertex];
+            }
+            if (rank[firstVertex] < rank[secondVertex]) {
+                parents[firstVertex] = secondVertex;
+            } else {
+                parents[secondVertex] = firstVertex;
+            }
+        }
+
+        public boolean equivalent(int firstVertex, int secondVertex) {
+            return root(firstVertex) == root(secondVertex);
+        }
+    }
+
+    private DisjointSetUnion dsu;
+    private List<Edge> edges;
+
+    public KruskalMstSearch(Graph graph) {
+        dsu = new DisjointSetUnion(graph.size());
+        edges = new ArrayList<>(graph.getEdges());
+        Collections.sort(edges);
+    }
+
+    public List<Edge> execute() {
+        List<Edge> ans = new ArrayList<>();
+        for (Edge edge : edges) {
+            if (!dsu.equivalent(edge.from, edge.to)) {
+                ans.add(edge);
+                dsu.unite(edge.from, edge.to);
+            }
+        }
+        return ans;
+    }
+}
